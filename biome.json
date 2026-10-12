@@ -1,0 +1,19 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.5.13/schema.json",
+	"root": true,
+	"vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+	"files": {
+		"includes": [
+			"**",
+			"!bun.lock",
+			"!rumdl",
+			"!fixtures/rendered.json",
+			"!src/**/*.rendered.json"
+		]
+	},
+	"formatter": { "indentStyle": "tab" },
+	"linter": {
+		"enabled": true,
+		"rules": { "preset": "recommended" }
+	}
+}

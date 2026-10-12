@@ -1,0 +1,36 @@
+{
+	"name": "@rigelbuild/tabit",
+	"version": "0.1.0",
+	"type": "module",
+	"license": "MIT OR Apache-2.0",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/RigelBuild/tabit.git"
+	},
+	"bin": {
+		"tabit": "./src/cli.ts"
+	},
+	"exports": {
+		".": "./src/index.ts",
+		"./testing": "./src/testing.ts"
+	},
+	"files": [
+		"package.json",
+		"src",
+		"README.md",
+		"LICENSE-MIT",
+		"LICENSE-APACHE"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"peerDependencies": {
+		"zod": "^4.4.3"
+	},
+	"devDependencies": {
+		"@rigelbuild/ref-gate": "^1.0.0",
+		"@types/bun": "1.4.0",
+		"typescript": "6.0.3",
+		"zod": "4.6.5"
+	}
+}

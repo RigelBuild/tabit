@@ -1,0 +1,52 @@
+{
+	$schema: "https://docs.renovatebot.com/renovate-schema.json",
+	extends: ["config:recommended"],
+	dependencyDashboard: true,
+	rebaseWhen: "behind-base-branch",
+	minimumReleaseAge: "5 days",
+	internalChecksFilter: "strict",
+	enabledManagers: ["custom.regex", "bun", "npm"],
+	customManagers: [
+		{
+			customType: "regex",
+			managerFilePatterns: ["/^devenv\\.lock$/"],
+			matchStrings: [
+				"\"repo\": \"devenv-nixpkgs\",\\s*\"rev\": \"(?<currentDigest>[a-f0-9]{40})\"",
+			],
+			depNameTemplate: "cachix/devenv-nixpkgs",
+			packageNameTemplate: "https://github.com/cachix/devenv-nixpkgs",
+			currentValueTemplate: "rolling",
+			datasourceTemplate: "git-refs",
+		},
+	],
+	packageRules: [
+		{
+			matchPackageNames: ["@types/bun", "bun-types"],
+			minimumReleaseAge: null,
+		},
+		{
+			matchManagers: ["bun", "npm"],
+			matchPackageNames: ["typescript"],
+			allowedVersions: "<7",
+		},
+		{
+			matchPackageNames: ["@rigelbuild/ref-gate"],
+			minimumReleaseAge: null,
+		},
+		{
+			matchPackageNames: ["zod"],
+			allowedVersions: "^4.4.3",
+		},
+		{
+			matchManagers: ["custom.regex"],
+			matchDepNames: ["cachix/devenv-nixpkgs"],
+			groupName: "devenv nixpkgs",
+			minimumReleaseAge: null,
+			postUpgradeTasks: {
+				commands: ["devenv update nixpkgs", "nix flake update nixpkgs"],
+				fileFilters: ["devenv.lock", "flake.lock"],
+				executionMode: "branch",
+			},
+		},
+	],
+}
