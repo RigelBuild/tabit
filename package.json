@@ -29,7 +29,7 @@
 	},
 	"devDependencies": {
 		"@rigelbuild/ref-gate": "^1.0.0",
-		"@types/bun": "1.4.0",
+		"@types/bun": "1.4.3",
 		"typescript": "6.0.3",
 		"zod": "4.6.5"
 	}
