@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { z } from "zod";
+import { validateClosedSchema } from "./closed.ts";
 import { defineConfig } from "./define.ts";
 import { renderModule } from "./render.ts";
 
@@ -43,6 +44,26 @@ describe("closed schemas", () => {
 			expect(() => render(schema, {})).toThrow(path);
 		},
 	);
+	test("escapes slashes in unrepresentable schema property paths", () => {
+		const schema = z.strictObject({ "x/y": z.date().optional() });
+		expect(() => validateClosedSchema(schema, "input")).toThrow(
+			"/properties/x~1y",
+		);
+	});
+
+	test("escapes slashes in open schema property paths", () => {
+		const schema = z.strictObject({ "x/y": z.object({ value: z.string() }) });
+		expect(() => validateClosedSchema(schema, "input")).toThrow(
+			"/properties/x~1y",
+		);
+	});
+
+	test("escapes both slash and tilde in schema property segments", () => {
+		const schema = z.strictObject({ "x/y~z": z.date().optional() });
+		expect(() => validateClosedSchema(schema, "input")).toThrow(
+			"/properties/x~1y~0z",
+		);
+	});
 
 	test("rejects a plain object reachable only through a recursive $ref definition", () => {
 		let recursive: z.ZodType;
@@ -55,6 +76,6 @@ describe("closed schemas", () => {
 				root: { inner: { value: "x" } },
 				other: { inner: { value: "y" } },
 			}),
-		).toThrow("$defs/__schema0/properties/inner");
+		).toThrow("/$defs/__schema0/properties/inner");
 	});
 });

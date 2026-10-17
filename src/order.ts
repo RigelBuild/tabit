@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { RenderError } from "./render.ts";
+import { formatIssuePath, RenderError } from "./render.ts";
 
 type InternalSchema = z.ZodType & { _zod: { def: { type: string } } };
 
 function orderValue(
 	value: unknown,
 	schema: z.ZodType,
-	path: string,
+	path: readonly PropertyKey[],
 	active: WeakSet<object>,
 	unionInput: unknown,
 	objectInput: unknown,
@@ -100,7 +100,10 @@ function orderValue(
 	}
 	if (Array.isArray(value)) {
 		if (active.has(value))
-			throw new RenderError("Circular value is not JSON", path);
+			throw new RenderError(
+				"Circular value is not JSON",
+				formatIssuePath(path),
+			);
 		active.add(value);
 		try {
 			const originalItems = Array.isArray(objectInput) ? objectInput : value;
@@ -110,7 +113,7 @@ function orderValue(
 					orderValue(
 						item,
 						array.element,
-						`${path}[${index}]`,
+						[...path, index],
 						active,
 						originalItems[index],
 						originalItems[index],
@@ -131,7 +134,7 @@ function orderValue(
 						: orderValue(
 								item,
 								itemSchema,
-								`${path}[${index}]`,
+								[...path, index],
 								active,
 								originalItems[index],
 								originalItems[index],
@@ -143,7 +146,7 @@ function orderValue(
 					orderValue(
 						item,
 						z.unknown(),
-						`${path}[${index}]`,
+						[...path, index],
 						active,
 						originalItems[index],
 						originalItems[index],
@@ -161,7 +164,7 @@ function orderValue(
 	)
 		return value;
 	if (active.has(value))
-		throw new RenderError("Circular value is not JSON", path);
+		throw new RenderError("Circular value is not JSON", formatIssuePath(path));
 	active.add(value);
 	try {
 		const object = value as Record<string, unknown>;
@@ -176,7 +179,7 @@ function orderValue(
 					value: orderValue(
 						child,
 						childSchema,
-						`${path}.${key}`,
+						[...path, key],
 						active,
 						originalChild,
 						originalChild,
@@ -237,7 +240,7 @@ export function orderParsedValue(
 	schema: z.ZodType,
 	inputValue: unknown,
 ): unknown {
-	return orderValue(value, schema, "$", new WeakSet(), inputValue, inputValue);
+	return orderValue(value, schema, [], new WeakSet(), inputValue, inputValue);
 }
 
 export function orderUnnamedKeys(value: unknown, schema: z.ZodType): unknown {

@@ -32,7 +32,7 @@ function deepestIssuePath(issue: z.core.$ZodIssue): PropertyKey[] {
 	return deepest;
 }
 
-function formatIssuePath(path: readonly PropertyKey[]): string {
+export function formatIssuePath(path: readonly PropertyKey[]): string {
 	return path.reduce<string>((result, part) => {
 		if (typeof part === "number") return `${result}[${part}]`;
 		const key = String(part);

@@ -146,6 +146,12 @@ describe("render paths and JSON boundaries", () => {
 		);
 	});
 
+	test("formats circular value paths with punctuation keys", () => {
+		const circular: Record<string, unknown> = {};
+		circular["a.b"] = circular;
+		expect(() => render(z.unknown(), circular)).toThrow('$["a.b"]');
+	});
+
 	test("rejects sparse array holes with their index", () => {
 		const sparse: unknown[] = [];
 		sparse.length = 2;
